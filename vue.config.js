@@ -6,7 +6,9 @@
 //         'api': '@/api',
 //         'common': '@/common',
 //         'components': '@/components',
-//         'views': '@/views'
+//         'views': '@/views',
+//         'router': '@/router',
+//         'store': '@/store'
 //       }
 //     }
 //   }
