@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Rank from 'components/rank/rank'
 import Recommend from 'components/recommend/recommend'
 import Search from 'components/search/search'
-import Singer from 'components/singer/singer'
+import Singer from '@/components/singer/singer'
 
 Vue.use(Router)
 
@@ -12,6 +12,7 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
+      // 根路径重定向
       path: '/',
       redirect: '/recommend'
     },
