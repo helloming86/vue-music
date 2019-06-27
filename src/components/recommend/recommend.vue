@@ -1,26 +1,48 @@
 <template>
   <div class="recommend" ref="recommend">
     <div class="recommend-content">
-      <div class="slider-wrapper">轮播图</div>
-      <div class="recommend-list"></div>
+      <div>
+        <div v-if="recommends.length" class="slider-wrapper">
+          <div class="slider-content">
+            <slider ref="slider">
+              <div v-for="(item,index) in recommends" :key="index">
+                <a :href="item.linkUrl">
+                  <img :src="item.picUrl">
+                </a>
+              </div>
+            </slider>
+          </div>
+        </div>
+      </div>
+      <div class="recommend-list">
         <h1>热门歌单推荐</h1>
         <ul>
-          <li>呵呵</li>
         </ul>
+      </div>
     </div>
   </div>
 </template>
 
 <script type='text/ecmascript-6'>
+import Slider from 'base/slider/slider'
 import { getRecommend } from 'api/recommend'
 import { ERR_OK } from 'api/config'
 export default {
   name: 'recommend',
+  components: {
+    Slider
+  },
+  data () {
+    return {
+      recommends: []
+    }
+  },
   methods: {
     _getRecommend () {
       getRecommend().then((res) => {
         if (res.code === ERR_OK) {
-          console.log(res.data.slider)
+          // console.log(res.data.slider)
+          this.recommends = res.data.slider
         }
       })
     }
@@ -31,7 +53,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
 
   .recommend
@@ -88,5 +110,4 @@ export default {
         width: 100%
         top: 50%
         transform: translateY(-50%)
-
 </style>

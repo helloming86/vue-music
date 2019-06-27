@@ -4,7 +4,7 @@
         "paths": {
         "@/*": ["src/*"],
         "api/*": ["src/api/*"],
-        "assets/*": ["src/assets/*"],
+        "base/*": ["src/base/*"],
         "common/*": ["src/common/*"],
         "components/*": ["src/components/*"],
         "router/*": ["src/router/*"],

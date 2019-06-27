@@ -23,6 +23,7 @@ module.exports = {
     config.resolve.alias
       .set('@', resolve('src'))
       .set('api', resolve('src/api'))
+      .set('base', resolve('src/base'))
       .set('common', resolve('src/common'))
       .set('components', resolve('src/components'))
       .set('views', resolve('src/views'))
