@@ -57,6 +57,7 @@ export default {
     })
   },
   destroyed () {
+    // 销毁组件时，清理计时器
     clearTimeout(this.timer)
   },
   methods: {
