@@ -14,7 +14,10 @@
             <slider ref="slider">
               <div v-for="(item,index) in recommends" :key="index">
                 <a :href="item.linkUrl">
-                  <img :src="item.picUrl"
+                  <!-- 设置class名needsclick fastclick监听到后img元素的点击事件后，fastclick就不会拦截img元素的click过程 -->
+                  <!-- 这时为了解决better-scroll 与 fastclick 就点击事件的冲突：列表需要点击，而fastclick本身的功能是限制点击 -->
+                  <img class="needsclick"
+                    :src="item.picUrl"
                     @load="loadImage"
                   >
                 </a>
