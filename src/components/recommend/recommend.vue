@@ -30,7 +30,7 @@
               class="item"
             >
               <div class="ico">
-                <img :src="item.imgurl"
+                <img v-lazy="item.imgurl"
                   alt=""
                   width="60"
                   height="60"
