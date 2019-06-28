@@ -1,6 +1,9 @@
 <template>
   <div class="recommend" ref="recommend">
-    <div class="recommend-content">
+    <!-- slide组件的data属性值是父组件recommend的discList -->
+    <!-- slide组件侦听了data的变化，当data变化时重新计算scroll的高度，保证能正确滚动 -->
+    <scroll class="recommend-content" :data="discList">
+      <!-- 使用better-scroll 支队第一个元素有效，所以讲slider和list使用div包裹起来 -->
       <div>
         <div v-if="recommends.length" class="slider-wrapper">
           <div class="slider-content">
@@ -13,42 +16,44 @@
             </slider>
           </div>
         </div>
+        <div class="recommend-list">
+          <h1>热门歌单推荐</h1>
+          <ul>
+            <li v-for="(item, index) in discList"
+              :key="index"
+              class="item"
+            >
+              <div class="ico">
+                <img :src="item.imgurl"
+                  alt=""
+                  width="60"
+                  height="60"
+                >
+              </div>
+              <div class="text">
+                <!-- {{item.creator.name}} -->
+                <!-- v-text="item.creator.name" -->
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="recommend-list">
-        <h1>热门歌单推荐</h1>
-        <ul>
-          <li v-for="(item, index) in discList"
-            :key="index"
-            class="item"
-          >
-            <div class="ico">
-              <img :src="item.imgurl"
-                alt=""
-                width="60"
-                height="60"
-              >
-            </div>
-            <div class="text">
-              <!-- {{item.creator.name}} -->
-              <!-- v-text="item.creator.name" -->
-              <h2 class="name" v-html="item.creator.name"></h2>
-              <p class="desc" v-html="item.dissname"></p>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
+    </scroll>
   </div>
 </template>
 
 <script type='text/ecmascript-6'>
+import Scroll from 'base/scroll/scroll'
 import Slider from 'base/slider/slider'
 import { getRecommend, getDiscList } from 'api/recommend'
 import { ERR_OK } from 'api/config'
 export default {
   name: 'recommend',
   components: {
-    Slider
+    Slider,
+    Scroll
   },
   data () {
     return {
