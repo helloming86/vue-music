@@ -1,8 +1,12 @@
 <template>
   <div class="recommend" ref="recommend">
     <!-- slide组件的data属性值是父组件recommend的discList -->
+    <!-- 为什么要侦听呢，因为recommend页面的数据都是异步获取的，获取到数据后，页面才被撑开，高度发生变化 -->
     <!-- slide组件侦听了data的变化，当data变化时重新计算scroll的高度，保证能正确滚动 -->
-    <scroll class="recommend-content" :data="discList">
+    <scroll class="recommend-content"
+      :data="discList"
+      ref="scroll"
+    >
       <!-- 使用better-scroll 支队第一个元素有效，所以讲slider和list使用div包裹起来 -->
       <div>
         <div v-if="recommends.length" class="slider-wrapper">
@@ -10,7 +14,9 @@
             <slider ref="slider">
               <div v-for="(item,index) in recommends" :key="index">
                 <a :href="item.linkUrl">
-                  <img :src="item.picUrl">
+                  <img :src="item.picUrl"
+                    @load="loadImage"
+                  >
                 </a>
               </div>
             </slider>
@@ -58,7 +64,8 @@ export default {
   data () {
     return {
       recommends: [],
-      discList: []
+      discList: [],
+      checkLoaded: false
     }
   },
   methods: {
@@ -77,6 +84,13 @@ export default {
           this.discList = res.data.list
         }
       })
+    },
+    loadImage () {
+      // 调用scroll组件的refresh()方法
+      if (!this.checkLoaded) {
+        this.$refs.scroll.refresh()
+        this.checkLoaded = true
+      }
     }
   },
   created () {
