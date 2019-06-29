@@ -1,17 +1,24 @@
 <template>
-  <div>Singer</div>
+  <div class="singer" ref="singer">
+    <!-- 给子组件ListView的props 中的 data  传值为父组件Singer data 中的 singers-->
+    <list-view :data="singers"></list-view>
+  </div>
 </template>
 
 <script>
 import Singer from 'common/js/singer'
 import { getSingerList } from 'api/singer'
 import { ERR_OK } from 'api/config'
+import ListView from 'base/listview/listview'
 
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
 
 export default {
   name: 'singer',
+  components: {
+    ListView
+  },
   data () {
     return {
       singers: []
@@ -24,9 +31,11 @@ export default {
     _getSingerList () {
       getSingerList().then((res) => {
         if (res.code === ERR_OK) {
-          this.singers = res.data.list
+          // this.singers = res.data.list
           // console.log(this.singers)
-          console.log(this._normalizeSinger(this.singers))
+          // console.log(this._normalizeSinger(this.singers))
+          this.singers = this._normalizeSinger(res.data.list)
+          // console.log(this.singers)
         }
       })
     },
@@ -58,7 +67,7 @@ export default {
           name: item.Fsinger_name
         }))
       })
-      console.log(map)
+      // console.log(map)
       // map对象是无序的，我们需要将map对象转换成有序的列表
       let hot = []
       let ret = []
@@ -76,8 +85,8 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       // concat() 方法用于连接两个或多个数组。该方法不会改变现有的数组，而仅仅会返回被连接数组的一个副本。
-      hot.concat(ret)
       console.log(hot.concat(ret))
+      return hot.concat(ret)
     }
   }
 }
@@ -87,6 +96,6 @@ export default {
   .singer
     position: fixed
     top: 88px
-    bottom: 8
+    bottom: 0
     width: 100%
 </style>
