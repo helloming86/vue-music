@@ -85,7 +85,7 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       // concat() 方法用于连接两个或多个数组。该方法不会改变现有的数组，而仅仅会返回被连接数组的一个副本。
-      console.log(hot.concat(ret))
+      // console.log(hot.concat(ret))
       return hot.concat(ret)
     }
   }

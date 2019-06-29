@@ -10,6 +10,7 @@
       <li v-for="(group, index) in data"
         :key="index"
         class="list-group"
+        ref="listGroup"
       >
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
@@ -23,11 +24,30 @@
         </ul>
       </li>
     </ul>
+    <!-- @touchstart 是DOM原生的事件方法 -->
+    <div class="list-shortcut"
+      @touchstart="onShortcutTouchStart"
+      @touchmove.stop.prevent="onShortcutTouchMove">
+      <ul>
+        <!-- 使用 :data-index 为 data-index 属性动态绑定属性值 -->
+        <li class="item"
+          v-for="(item, index) in shortcutList"
+          :key="index"
+          :data-index="index"
+        >
+          {{item}}
+        </li>
+      </ul>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
+import { getData } from 'common/js/dom'
+
+const ANCHOR_HEIGHT = 18
+
 export default {
   name: 'ListView',
   props: {
@@ -36,6 +56,46 @@ export default {
       // 类型为Array时，default为null
       default: null
     }
+  },
+  computed: {
+    shortcutList () {
+      return this.data.map((group) => {
+        return group.title.substr(0, 1)
+      })
+    }
+  },
+  methods: {
+    onShortcutTouchStart (e) {
+      // console.log(e.target)
+      // anchorIndex 是一个字符串
+      let anchorIndex = getData(e.target, 'index')
+      // e.touches[0]第一个手指的touch信息
+      let firstTouch = e.touches[0]
+      // 第一个手指的touch信息的pageY值
+      this.touch.y1 = firstTouch.pageY
+      this.touch.anchorIndex = anchorIndex
+      this._scrollTo(anchorIndex)
+    },
+    onShortcutTouchMove (e) {
+      let firstTouch = e.touches[0]
+      console.log(firstTouch)
+      this.touch.y2 = firstTouch.pageY
+      console.log(this.touch.y2)
+      // 两个Y值之间的偏移
+      let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
+      console.log(delta)
+      // 现将字符串转化成整形，再相加
+      let anchorIndex = parseInt(this.touch.anchorIndex) + delta
+      this._scrollTo(anchorIndex)
+    },
+    _scrollTo (index) {
+      this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+    }
+  },
+  created () {
+    // 在created()钩子里面定义touch，不会像定义在data中需要实时监听；
+    // 主要作用是方便onShortcutTouchStart和onShortcutTouchMove都能使用touch
+    this.touch = {}
   },
   components: {
     Scroll
