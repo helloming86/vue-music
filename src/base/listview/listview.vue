@@ -91,12 +91,12 @@ export default {
     },
     onShortcutTouchMove (e) {
       let firstTouch = e.touches[0]
-      console.log(firstTouch)
+      // console.log(firstTouch)
       this.touch.y2 = firstTouch.pageY
-      console.log(this.touch.y2)
+      // console.log(this.touch.y2)
       // 两个Y值之间的偏移
       let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
-      console.log(delta)
+      // console.log(delta)
       // 现将字符串转化成整形，再相加
       let anchorIndex = parseInt(this.touch.anchorIndex) + delta
       this._scrollTo(anchorIndex)
@@ -106,6 +106,20 @@ export default {
       this.scrollY = pos.y
     },
     _scrollTo (index) {
+      console.log(index)
+      // 当点击/滑动到字母表上方和下方的多余区块时
+      if (!index && index !== 0) {
+        return
+      }
+      // 处理滚动时的index边界问题
+      if (index < 0) {
+        index = 0
+      } else if (index > this.listHeight.length - 2) {
+        index = this.listHeight.length - 2
+      }
+      // 滚动字母表时，设置scrollY为当前index对应的listgroup的上限
+      // 这样做的目的是，式scrollY变化，则watch能侦听到，所以也会使字母表的高亮效果同时更新
+      this.scrollY = -this.listHeight[index]
       this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
     },
     // 计算每个group的高度
@@ -168,7 +182,7 @@ export default {
         // 则 当前的index就是i值
         if (-newY >= height1 && -newY < height2) {
           this.currentIndex = i
-          console.log(this.currentIndex)
+          // console.log(this.currentIndex)
           return
         }
       }
