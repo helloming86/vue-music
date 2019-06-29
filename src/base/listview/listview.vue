@@ -44,14 +44,22 @@
         </li>
       </ul>
     </div>
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
+      <h1 class="fixed-title">{{fixedTitle}}</h1>
+    </div>
+    <div v-show="!data.length" class="loading-container">
+      <loading></loading>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
 import { getData } from 'common/js/dom'
 
 const ANCHOR_HEIGHT = 18
+const TITLE_HEIGHT = 30
 
 export default {
   name: 'ListView',
@@ -67,7 +75,9 @@ export default {
       // 监测：实时滚动位置
       scrollY: -1,
       // 监测：当前index，需要高亮显示的index
-      currentIndex: 0
+      currentIndex: 0,
+      // 监测：滚动时标题的偏移量
+      diff: -1
     }
   },
   computed: {
@@ -75,6 +85,13 @@ export default {
       return this.data.map((group) => {
         return group.title.substr(0, 1)
       })
+    },
+    fixedTitle () {
+      // 边界值，下滑到顶部
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     }
   },
   methods: {
@@ -182,16 +199,26 @@ export default {
         // 则 当前的index就是i值
         if (-newY >= height1 && -newY < height2) {
           this.currentIndex = i
-          // console.log(this.currentIndex)
+          this.diff = height2 + newY
           return
         }
       }
       // 滚动到底部，且-newY 大于最后一个元素的上限
       this.currentIndex = listHeight.length - 2
+    },
+    diff (newVal) {
+      let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+      if (this.fixedTop === fixedTop) {
+        return
+      }
+      // this.fixedTop 自定义属性
+      this.fixedTop = fixedTop
+      this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
     }
   },
   components: {
-    Scroll
+    Scroll,
+    Loading
   }
 }
 </script>
