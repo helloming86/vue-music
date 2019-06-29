@@ -2,9 +2,13 @@
   <!-- 异步获取数据，使用Scroll组件时，侦听数据变化 -->
   <!-- :data 的 data 指代子组件Scroll的 props 的 data -->
   <!-- "data" 的 data 指代父组件ListView 的d ata -->
+  <!-- 子组件Scroll 的 props对象的listenScroll属性值是父组件ListView的listenScroll -->
   <scroll class="listview"
-    :data="data"
-    ref="listview"
+          :data="data"
+          :listenScroll="listenScroll"
+          :probeType="probeType"
+          @scroll="scroll"
+          ref="listview"
   >
     <ul>
       <li v-for="(group, index) in data"
@@ -31,9 +35,10 @@
       <ul>
         <!-- 使用 :data-index 为 data-index 属性动态绑定属性值 -->
         <li class="item"
-          v-for="(item, index) in shortcutList"
-          :key="index"
-          :data-index="index"
+            :class="{'current': currentIndex===index}"
+            v-for="(item, index) in shortcutList"
+            :key="index"
+            :data-index="index"
         >
           {{item}}
         </li>
@@ -55,6 +60,14 @@ export default {
       type: Array,
       // 类型为Array时，default为null
       default: null
+    }
+  },
+  data () {
+    return {
+      // 监测：实时滚动位置
+      scrollY: -1,
+      // 监测：当前index，需要高亮显示的index
+      currentIndex: 0
     }
   },
   computed: {
@@ -88,14 +101,73 @@ export default {
       let anchorIndex = parseInt(this.touch.anchorIndex) + delta
       this._scrollTo(anchorIndex)
     },
+    scroll (pos) {
+      this.scrollY = pos.y
+    },
     _scrollTo (index) {
       this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+    },
+    // 计算每个group的高度
+    _calculateHeight () {
+      // 每次计算高度时，初始化列表高度为空数组
+      this.listHeight = []
+      const list = this.$refs.listGroup
+      // 一开始高度为 0
+      let height = 0
+      // 第一组数据的高度为0
+      this.listHeight.push(height)
+      // 遍历listGroup，数组中增加每个Group的高度数据
+      for (let i = 0; i < list.length; i++) {
+        // 获得每个group的元素
+        let item = list[i]
+        // console.log(item.clientHeight)
+        // item 是一个DOM，可以直接通过clientHeight获取高度
+        height += item.clientHeight
+        // 列表高度累加
+        this.listHeight.push(height)
+      }
+      // console.log(this.listHeight)
     }
   },
   created () {
-    // 在created()钩子里面定义touch，不会像定义在data中需要实时监听；
+    // 在created()钩子里面定义touch，不会像定义在data和props中需要实时监听；
     // 主要作用是方便onShortcutTouchStart和onShortcutTouchMove都能使用touch
     this.touch = {}
+    this.listenScroll = true
+    this.listHeight = []
+    // probeType 设置为3，表示滚动监听级别为实时
+    this.probeType = 3
+  },
+  watch: {
+    // 监听data：listview发生变化时，要重新计算高度，所以定义在watch中
+    data () {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 20)
+    },
+    // 监听scrollY的变化，判断scrollY目前落在那个group区间
+    // 逻辑：大于下限，小于上限
+    scrollY (newY) {
+      const listHeight = this.listHeight
+      // console.log(this.listHeight)
+      for (let i = 0; i < listHeight.length; i++) {
+        // 下限：当前listgroup
+        let height1 = listHeight[i]
+        // 上限：下一个listgroup的下限即是本listgroup的上限
+        let height2 = listHeight[i + 1]
+        // 当遍历到最后一个数据时height2不存在 !height2 就为true
+        // 向上滚动时，newY 为负值
+        // 下面if的逻辑：当到最后一个元素时（!height2 为 true）
+        // 或者 向上滑动时落在上下限区间
+        // 则 当前的index就是i值
+        if (!height2 || (-newY > height1 && -newY < height2)) {
+          this.currentIndex = i
+          console.log(this.currentIndex)
+          return
+        }
+      }
+      this.currentIndex = 0
+    }
   },
   components: {
     Scroll

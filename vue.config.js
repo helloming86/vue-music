@@ -1,18 +1,3 @@
-// vue.config.js
-// module.exports = {
-//   configureWebpack: {
-//     resolve: {
-//       alias: {
-//         'api': '@/api',
-//         'common': '@/common',
-//         'components': '@/components',
-//         'views': '@/views',
-//         'router': '@/router',
-//         'store': '@/store'
-//       }
-//     }
-//   }
-// }
 const path = require('path')
 const axios = require('axios')
 

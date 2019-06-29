@@ -21,6 +21,11 @@ export default {
     data: {
       type: Array,
       default: null
+    },
+    // Scroll是否监听滚动事件
+    listenScroll: {
+      type: Boolean,
+      default: false
     }
   },
   mounted () {
@@ -37,6 +42,17 @@ export default {
         probeType: this.probeType,
         click: this.click
       })
+
+      if (this.listenScroll) {
+        // 使用me保存了this（Vue实例），在内层使用me表示还是外层的this
+        let me = this
+        // scroll.on 事件，有一个回调函数，pos是位置信息
+        // 监听Scroll组件的滚动事件，并且执行回调函数：像父组件派发scroll事件，同时传回pos信息（子传父）
+        this.scroll.on('scroll', (pos) => {
+          // Vue实例的$emit方法，所以，这里用me
+          me.$emit('scroll', pos)
+        })
+      }
     },
     enable () {
       // 运算方法
