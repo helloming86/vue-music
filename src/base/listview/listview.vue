@@ -102,6 +102,7 @@ export default {
       this._scrollTo(anchorIndex)
     },
     scroll (pos) {
+      // pos.y 表示实时scroll的y高度
       this.scrollY = pos.y
     },
     _scrollTo (index) {
@@ -149,8 +150,13 @@ export default {
     // 逻辑：大于下限，小于上限
     scrollY (newY) {
       const listHeight = this.listHeight
-      // console.log(this.listHeight)
-      for (let i = 0; i < listHeight.length; i++) {
+      // 当下滑，滚动到顶部 newY > 0
+      if (newY > 0) {
+        this.currentIndex = 0
+        return
+      }
+      // 在中间部分，滚动到倒数第二个group
+      for (let i = 0; i < listHeight.length - 1; i++) {
         // 下限：当前listgroup
         let height1 = listHeight[i]
         // 上限：下一个listgroup的下限即是本listgroup的上限
@@ -160,13 +166,14 @@ export default {
         // 下面if的逻辑：当到最后一个元素时（!height2 为 true）
         // 或者 向上滑动时落在上下限区间
         // 则 当前的index就是i值
-        if (!height2 || (-newY > height1 && -newY < height2)) {
+        if (-newY >= height1 && -newY < height2) {
           this.currentIndex = i
           console.log(this.currentIndex)
           return
         }
       }
-      this.currentIndex = 0
+      // 滚动到底部，且-newY 大于最后一个元素的上限
+      this.currentIndex = listHeight.length - 2
     }
   },
   components: {
