@@ -12,6 +12,8 @@ import Singer from 'common/js/singer'
 import { getSingerList } from 'api/singer'
 import { ERR_OK } from 'api/config'
 import ListView from 'base/listview/listview'
+// vuex:mutations 语法糖
+import { mapMutations } from 'vuex'
 
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
@@ -35,6 +37,8 @@ export default {
       this.$router.push({
         path: `/singer/${singer.id}`
       })
+      // 状态管理的mutations操作的简化用法
+      this.setSinger(singer)
     },
     _getSingerList () {
       getSingerList().then((res) => {
@@ -95,7 +99,11 @@ export default {
       // concat() 方法用于连接两个或多个数组。该方法不会改变现有的数组，而仅仅会返回被连接数组的一个副本。
       // console.log(hot.concat(ret))
       return hot.concat(ret)
-    }
+    },
+    // 扩展运算符：做对象映射：将mutations修改SET_SINGER的方法映射为方法名setSinger，供其他地方使用
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    })
   }
 }
 </script>
