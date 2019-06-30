@@ -31,6 +31,7 @@ export default {
   },
   methods: {
     selectSinger (singer) {
+      // 编程式导航
       this.$router.push({
         path: `/singer/${singer.id}`
       })
