@@ -19,8 +19,9 @@
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li class="list-group-item"
-            v-for="item in group.items"
-            :key="item.id"
+              @click="selectItem(item)"
+              v-for="item in group.items"
+              :key="item.id"
           >
             <img class="avatar" v-lazy="item.avatar" alt="">
             <span class="name">{{item.name}}</span>
@@ -121,6 +122,10 @@ export default {
     scroll (pos) {
       // pos.y 表示实时scroll的y高度
       this.scrollY = pos.y
+    },
+    selectItem (item) {
+      // 基础组件，将事件派发给业务组件，由业务组件决定如何操作
+      this.$emit('select', item)
     },
     _scrollTo (index) {
       console.log(index)
