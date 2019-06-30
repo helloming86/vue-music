@@ -2,6 +2,8 @@
   <div class="singer" ref="singer">
     <!-- 给子组件ListView的props 中的 data  传值为父组件Singer data 中的 singers-->
     <list-view :data="singers"></list-view>
+    <!--  挂载子路由  -->
+    <router-view></router-view>
   </div>
 </template>
 
