@@ -62,6 +62,8 @@
         </div>
       </div>
     </transition>
+    <audio ref="audio"
+    ></audio>
   </div>
 </template>
 
@@ -80,6 +82,17 @@ export default {
       'playList',
       'currentSong'
     ])
+  },
+  watch: {
+    // 当currentSong放生变化时，调用H5：audio标签的play方法播放
+    currentSong () {
+      // this.$nextTick(() => {
+      //   this.$refs.audio.play()
+      // })
+      // console.log(this.currentSong)
+      this.$refs.audio.src = this.currentSong.url
+      this.$refs.audio.play()
+    }
   },
   methods: {
     open () {

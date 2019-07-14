@@ -15,7 +15,7 @@
 import { mapGetters } from 'vuex'
 import { getSingerDetail } from 'api/singer'
 import { ERR_OK } from 'api/config'
-import { createSong } from 'common/js/song'
+import { createSong, isValidMusic, processSongsUrl } from 'common/js/song'
 import MusicList from 'components/music-list/music-list'
 
 export default {
@@ -47,9 +47,11 @@ export default {
       }
       getSingerDetail(this.singer.id).then((res) => {
         if (res.code === ERR_OK) {
-          // console.log(res.data.list)
-          this.songs = this._normalizeSongs(res.data.list)
-          // console.log(this.songs)
+          processSongsUrl(this._normalizeSongs(res.data.list)).then((songs) => {
+            // console.log(songs)
+            this.songs = songs
+            console.log(this.songs)
+          })
         }
       })
     },
@@ -59,7 +61,9 @@ export default {
       list.forEach((item) => {
         // 对象结构赋值
         let { musicData } = item
-        if (musicData.songid && musicData.albumid) {
+        if (isValidMusic(musicData)) {
+          // console.log(musicData.url)
+          // console.log(musicData.albumid)
           ret.push(createSong(musicData))
         }
       })
