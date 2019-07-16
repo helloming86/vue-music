@@ -21,7 +21,7 @@
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd">
-                <img :src="currentSong.image" alt="" class="image">
+                <img  :class="cdCls" :src="currentSong.image" alt="" class="image">
               </div>
             </div>
           </div>
@@ -35,7 +35,7 @@
               <i class="icon-prev"></i>
             </div>
             <div class="icon i-center">
-              <i class="icon-play"></i>
+              <i @click="togglePlaying" :class="playIcon"></i>
             </div>
             <div class="icon i-right">
               <i class="icon-next"></i>
@@ -50,19 +50,22 @@
     <transition class="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img :src="currentSong.image" alt="" width="40" height="40">
+          <img :class="cdCls" :src="currentSong.image" alt="" width="40" height="40">
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
-        <div class="control"></div>
+        <div class="control">
+          <!-- .stop能阻止子元素的click事件冒泡到父元素的click事件上面 -->
+          <i @click.stop="togglePlaying" :class="miniIcon"></i>
+        </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio ref="audio"
+    <audio ref="audio" :src="currentSong.url"
     ></audio>
   </div>
 </template>
@@ -77,21 +80,40 @@ const transform = prefixStyle('transform')
 export default {
   name: 'Player',
   computed: {
+    playIcon () {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniIcon () {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    cdCls () {
+      return this.playing ? 'play' : 'play pause'
+    },
     ...mapGetters([
       'fullScreen',
       'playList',
-      'currentSong'
+      'currentSong',
+      'playing'
     ])
   },
   watch: {
     // 当currentSong放生变化时，调用H5：audio标签的play方法播放
     currentSong () {
-      // this.$nextTick(() => {
-      //   this.$refs.audio.play()
-      // })
+      // 当在template中使用:src确定音乐URL时，需要使用$nextTick确保DOM加载完毕ready，否则play时，DOM异常
+      // nextTick方法：在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
       // console.log(this.currentSong)
-      this.$refs.audio.src = this.currentSong.url
-      this.$refs.audio.play()
+      // 如果不使用nextTick API，使用this.$refs.audio.src在watch中确认音乐URL
+      // this.$refs.audio.src = this.currentSong.url
+      // this.$refs.audio.play()
+    },
+    playing (newPlaying) {
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause()
+      })
     }
   },
   methods: {
@@ -139,6 +161,9 @@ export default {
       this.$refs.cdWrapper.style.transition = ''
       this.$refs.cdWrapper.style[transform] = ''
     },
+    togglePlaying () {
+      this.setPlayingState(!this.playing)
+    },
     _getPosAndScale () {
       const targetWidth = 40
       const paddingLeft = 40
@@ -153,7 +178,8 @@ export default {
       }
     },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN'
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE'
     })
   }
 }
@@ -244,6 +270,8 @@ export default {
                 border: 10px solid rgba(255, 255, 255, 0.1)
               .play
                 animation: rotate 20s linear infinite
+              .pause
+                animation-play-state: paused
           .playing-lyric-wrapper
             width: 80%
             margin: 30px auto 0 auto
