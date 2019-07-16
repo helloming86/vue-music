@@ -50,7 +50,9 @@
     <transition class="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img :class="cdCls" :src="currentSong.image" alt="" width="40" height="40">
+          <div class="imgWrapper" ref="miniWrapper">
+            <img :class="cdCls" :src="currentSong.image" alt="" width="40" height="40">
+          </div>
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
