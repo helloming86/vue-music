@@ -27,6 +27,11 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper"></div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
@@ -71,6 +76,7 @@
            :src="currentSong.url"
            @canplay="ready"
            @error="error"
+           @timeupdate="updateTime"
     ></audio>
   </div>
 </template>
@@ -86,7 +92,8 @@ export default {
   name: 'Player',
   data () {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: 0
     }
   },
   computed: {
@@ -215,6 +222,31 @@ export default {
     },
     error () {
       this.songReady = true
+    },
+    // 参数为一个event事件对象
+    updateTime (e) {
+      this.currentTime = e.target.currentTime
+    },
+    // 时间戳转换
+    format (interval) {
+      // JavaScript 将数字存储为 64 位浮点数，但所有按位运算都以 32 位二进制数执行。
+      // 在执行位运算之前，JavaScript 将数字转换为 32 位有符号整数。
+      // 执行按位操作后，结果将转换回 64 位 JavaScript 数。
+      // 位运算符|，当对一对数位执行位运算 OR 时，如果其中一位是 1 则返回 1
+      // 整数向下取整？
+      interval = interval | 0
+      const minute = interval / 60 | 0
+      const second = this._pad(interval % 60)
+      return `${minute}:${second}`
+    },
+    // 字符串补位
+    _pad (num, n = 2) {
+      let len = num.toString().length
+      while (len < n) {
+        num = '0' + num
+        len++
+      }
+      return num
     },
     _getPosAndScale () {
       const targetWidth = 40
