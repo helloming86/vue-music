@@ -1,5 +1,5 @@
 <template>
-  <div class="progress-bar" ref="progressBar">
+  <div class="progress-bar" ref="progressBar" @click="progressCLick">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
       <!-- 使用.prevent阻止浏览器的默认行为 -->
@@ -50,6 +50,10 @@ export default {
     },
     progressTouchEnd () {
       this.touch.initiated = false
+      this._triggerPercent()
+    },
+    progressCLick (e) {
+      this._offset(e.offsetX)
       this._triggerPercent()
     },
     _offset (offsetWidth) {
