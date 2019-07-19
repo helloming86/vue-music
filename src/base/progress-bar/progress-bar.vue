@@ -53,7 +53,11 @@ export default {
       this._triggerPercent()
     },
     progressCLick (e) {
-      this._offset(e.offsetX)
+      const rect = this.$refs.progressBar.getBoundingClientRect()
+      const offsetWidth = e.pageX - rect.left
+      this._offset(offsetWidth)
+      // 当点击progressBtn时，e.offsetX获取不对
+      // this._offset(e.offsetX)
       this._triggerPercent()
     },
     _offset (offsetWidth) {
