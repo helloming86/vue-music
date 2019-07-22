@@ -5,9 +5,11 @@ import { ERR_OK } from 'api/config'
 
 const debug = process.env.NODE_ENV !== 'production'
 
+// 获取歌词API
 export function getLyric (mid) {
+  // API请求地址，因为webpack自定义了转发，所以，URL地址设置为webpack的转发地址
   const url = debug ? '/api/lyric' : 'http://ustbhuangyi.com/music/api/lyric'
-
+  // commonParams 公共参数，source2 API其他参数
   const data = Object.assign({}, commonParams, {
     songmid: mid,
     platform: 'yqq',
@@ -17,10 +19,16 @@ export function getLyric (mid) {
     pcachetime: +new Date(),
     format: 'json'
   })
-
+  // 使用axios的get方法，获取响应结果的data数据
+  // then方法可以接受两个回调函数作为参数。
+  // 第一个回调函数是Promise对象的状态变为resolved时调用，第二个回调函数是Promise对象的状态变为rejected时调用。
+  // 其中，第二个函数是可选的，不一定要提供。这两个函数都接受Promise对象传出的值作为参数。
   return axios.get(url, {
     params: data
   }).then((res) => {
+    // 有时需要将现有对象转为 Promise 对象，Promise.resolve方法就起到这个作用。
+    // Promise.resolve('foo')   ===    new Promise(resolve => resolve('foo'))
+    // 如果参数是一个原始值，或者是一个不具有then方法的对象，则Promise.resolve方法返回一个新的 Promise 对象，状态为resolved。
     return Promise.resolve(res.data)
   })
 }

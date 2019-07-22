@@ -94,6 +94,7 @@ import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import { playMode } from 'common/js/config'
 import { shuffle } from 'common/js/util'
+import Lyric from 'lyric-parser'
 
 const transform = prefixStyle('transform')
 
@@ -103,7 +104,8 @@ export default {
     return {
       songReady: false,
       currentTime: 0,
-      radius: 32
+      radius: 32,
+      currentLyric: null
     }
   },
   components: {
@@ -149,8 +151,9 @@ export default {
       // nextTick方法：在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。
       this.$nextTick(() => {
         this.$refs.audio.play()
+        // 获取歌词
+        this.getLyric()
       })
-      // console.log(this.currentSong)
       // 如果不使用nextTick API，使用this.$refs.audio.src在watch中确认音乐URL
       // this.$refs.audio.src = this.currentSong.url
       // this.$refs.audio.play()
@@ -300,6 +303,13 @@ export default {
         return item.id === this.currentSong.id
       })
       this.setCurrentIndex(index)
+    },
+    // 封装获取歌词函数
+    getLyric () {
+      this.currentSong.getLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric)
+        console.log(this.currentLyric)
+      })
     },
     // 字符串补位
     _pad (num, n = 2) {

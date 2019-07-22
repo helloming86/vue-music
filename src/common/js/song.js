@@ -15,17 +15,26 @@ export default class Song {
     this.url = url
   }
 
+  // Song类的getLyric方法，用于获取歌词
   getLyric () {
     if (this.lyric) {
+      // 有时需要将现有对象转为 Promise 对象，Promise.resolve方法就起到这个作用。
+      // Promise.resolve('foo')   ===    new Promise(resolve => resolve('foo'))
+      // 如果参数是一个原始值，或者是一个不具有then方法的对象，则Promise.resolve方法返回一个新的 Promise 对象，状态为resolved。
       return Promise.resolve(this.lyric)
     }
 
     return new Promise((resolve, reject) => {
+      // 调用 api/song 里面定义的 getLyric API
       getLyric(this.mid).then((res) => {
         if (res.retcode === ERR_OK) {
+          // base64解码
           this.lyric = Base64.decode(res.lyric)
+          // console.log(this.lyric)
+          // 成功回调
           resolve(this.lyric)
         } else {
+          // 失败回调
           reject(new Error('no lyric'))
         }
       })
