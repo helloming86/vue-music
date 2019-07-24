@@ -27,6 +27,11 @@
               <div class="cd">
                 <img  :class="cdCls" :src="currentSong.image" alt="" class="image">
               </div>
+              <div class="playing-lyric-wrapper">
+                <div class="playing-lyric">
+                  {{playingLyric}}
+                </div>
+              </div>
             </div>
           </div>
           <scroll class="middle-r"
@@ -132,7 +137,8 @@ export default {
       radius: 32,
       currentLyric: null,
       currentLineNum: 0,
-      currentShow: 'cd'
+      currentShow: 'cd',
+      playingLyric: ''
     }
   },
   components: {
@@ -175,13 +181,16 @@ export default {
       if (newSong.id === oldSong.id) {
         return
       }
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+      }
       // 当在template中使用:src确定音乐URL时，需要使用$nextTick确保DOM加载完毕ready，否则play时，DOM异常
       // nextTick方法：在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。
-      this.$nextTick(() => {
+      setTimeout(() => {
         this.$refs.audio.play()
         // 获取歌词
         this.getLyric()
-      })
+      }, 1000)
       // 如果不使用nextTick API，使用this.$refs.audio.src在watch中确认音乐URL
       // this.$refs.audio.src = this.currentSong.url
       // this.$refs.audio.play()
@@ -242,7 +251,13 @@ export default {
       this.$refs.cdWrapper.style[transform] = ''
     },
     togglePlaying () {
+      if (!this.songReady) {
+        return
+      }
       this.setPlayingState(!this.playing)
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
     end () {
       if (this.mode === playMode.loop) {
@@ -254,20 +269,27 @@ export default {
     loop () {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
+      }
     },
     next () {
       // 如果歌曲未就绪，则不能点击
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex + 1
-      // 当是最后一首歌时，点击next播放第一首
-      if (index === this.playList.length) {
-        index = 0
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.togglePlaying()
+      if (this.playList.length === 1) {
+        this.loop()
+      } else {
+        let index = this.currentIndex + 1
+        // 当是最后一首歌时，点击next播放第一首
+        if (index === this.playList.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       }
       this.songReady = false
     },
@@ -276,14 +298,18 @@ export default {
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex - 1
-      // 当时第一首歌时，点击prev播放最后一首
-      if (index === -1) {
-        index = this.playList.length - 1
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.togglePlaying()
+      if (this.playList.length === 1) {
+        this.loop()
+      } else {
+        let index = this.currentIndex - 1
+        // 当时第一首歌时，点击prev播放最后一首
+        if (index === -1) {
+          index = this.playList.length - 1
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       }
       this.songReady = false
     },
@@ -310,9 +336,13 @@ export default {
       return `${minute}:${second}`
     },
     onProgressBarChange (percent) {
-      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      const currentTime = this.currentSong.duration * percent
+      this.$refs.audio.currentTime = currentTime
       if (!this.playing) {
         this.togglePlaying()
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
       }
     },
     // 切换播放模式
@@ -344,9 +374,13 @@ export default {
           this.currentLyric.play()
         }
         console.log(this.currentLyric)
+      }).catch(() => {
+        this.currentLyric = null
+        this.playingLyric = ''
+        this.currentLineNum = 0
       })
     },
-    handleLyric ({ lineNum }) {
+    handleLyric ({ lineNum, txt }) {
       this.currentLineNum = lineNum
       if (lineNum > 5) {
         let lineEl = this.$refs.lyricLine[lineNum - 5]
@@ -354,6 +388,7 @@ export default {
       } else {
         this.$refs.lyricList.scrollTo(0, 0, 1000)
       }
+      this.playingLyric = txt
     },
     // 回调函数
     middleTouchStart (e) {
