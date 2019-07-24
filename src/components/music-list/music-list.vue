@@ -42,6 +42,7 @@ import SongList from 'base/song-list/song-list'
 import Loading from 'base/loading/loading'
 import { prefixStyle } from 'common/js/dom'
 import { mapActions } from 'vuex'
+import { playlistMixin } from 'common/js/mixin'
 
 const RESERVED_HEIGHT = 40
 const transform = prefixStyle('transform')
@@ -49,6 +50,9 @@ const backdrop = prefixStyle('backdrop-filter')
 
 export default {
   name: 'MusicList',
+  // mixins: playlistMixin，将mixin.js的 playlistMixin 合并到MusicList组件中
+  // 然后在MusicList组件中，重写 handlePlaylist，覆盖 playlistMixin 的 handlePlaylist 方法
+  mixins: [playlistMixin],
   props: {
     bgImage: {
       type: String,
@@ -105,6 +109,12 @@ export default {
     }
   },
   methods: {
+    // 重写MusicList的handlePlaylist 方法，覆盖Mixins里面的同名方法
+    handlePlaylist (playList) {
+      const bottom = playList.length > 0 ? '60px' : ''
+      this.$refs.list.$el.style.bottom = bottom
+      this.$refs.list.refresh()
+    },
     scroll (pos) {
       this.scrollY = pos.y
     },

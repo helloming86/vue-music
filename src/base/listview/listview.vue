@@ -119,6 +119,9 @@ export default {
       let anchorIndex = parseInt(this.touch.anchorIndex) + delta
       this._scrollTo(anchorIndex)
     },
+    refresh () {
+      this.$refs.listview.refresh()
+    },
     scroll (pos) {
       // pos.y 表示实时scroll的y高度
       this.scrollY = pos.y
