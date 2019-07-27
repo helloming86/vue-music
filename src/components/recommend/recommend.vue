@@ -29,8 +29,9 @@
           <h1>热门歌单推荐</h1>
           <ul>
             <li v-for="(item, index) in discList"
-              :key="index"
-              class="item"
+                :key="index"
+                class="item"
+                @click="selectItem(item)"
             >
               <div class="ico">
                 <img v-lazy="item.imgurl"
@@ -55,6 +56,7 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -86,6 +88,11 @@ export default {
       const bottom = playList.length > 0 ? '60px' : ''
       this.$refs.recommend.style.bottom = bottom
       this.$refs.scroll.refresh()
+    },
+    selectItem (item) {
+      this.$router.push({
+        path: `/recommend/${item.dissid}`
+      })
     },
     _getRecommend () {
       getRecommend().then((res) => {
